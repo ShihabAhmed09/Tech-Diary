@@ -1,0 +1,152 @@
+{% extends 'blog/base.html' %}
+
+{% block css %} {% endblock css %}
+
+{% block body %}
+{% load humanize %}
+{% load myfilter %}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <a href="{% url 'blog:blog-home' %}" class="btn btn-dark">&laquo; Back To Home</a>
+        </div>
+    </div>
+    <div class="row g-4 mt-1 justify-content-center">
+        <div class="col-md-10">
+            <div class="row g-0 border rounded overflow-hidden flex-md-row p-4 mb-4 shadow-sm h-md-250 position-relative">
+                <div class="col-md-2 d-flex flex-column position-static">
+                    <img class="rounded-circle" width="125px" height="125px"
+                         src="{{ object.author.profile.profile_pic.url }}">
+                </div>
+                <div class="col-md-10 p-1 d-flex flex-column position-static">
+                    <div class="border-bottom mx-4">
+                        <strong class="d-inline-block mb-1 me-2 text-primary">
+                            <a href="{% url 'blog:user-posts' object.author.username %}" class="text-decoration-none">
+                                {{ object.author }}</a>
+                        </strong>
+                        <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
+                        {% if object.author == request.user %}
+                        <div>
+                            <a class="btn btn-secondary btn-sm mt-1 mb-1" role="button"
+                               href="{% url 'blog:post-update' object.slug %}">Update</a>
+                            <a class="btn btn-danger btn-sm mt-1 mb-1" role="button"
+                               href="{% url 'blog:post-delete' object.slug %}">Delete</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mx-4">
+                        <h2 class="mt-2">{{ object.title }}</h2>
+                        <p class="article-content">{{ object.content|safe }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-1 mt-0 justify-content-center">
+        <div class="col-md-10">
+            <div class="row g-0 border rounded bg-light overflow-hidden flex-md-row p-4 mb-4 shadow-sm h-md-250 position-relative">
+                <h2 class="">Conversations ({{ comments.count }})</h2>
+                <hr class="mt-2 mb-4">
+                <!--Comment section-->
+                {% if user.is_authenticated %}
+                    <form action="{% url 'blog:post-comment' %}" method="post" class="mb-4"> {% csrf_token %}
+                        <input type="hidden" name="post_id" value="{{ object.id }}">
+                        <input type="hidden" name="parent_serial_no" value="">
+                        <div class="form-group mb-3">
+                            <input type="text" class="form-control" id="comment" name="comment"
+                                placeholder="Be the first to comment...">
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary">Post Comment</button>
+                    </form>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <span class="mx-2 fs-5">Please Login or Create an account to post a comment.</span>
+                    </div>
+                {% endif %}
+                <!--Showing Comments-->
+                {% for comment in comments %}
+                    <div class="card my-2">
+                        <div class="row g-0">
+                            <div class="col-md-2">
+                                <img src="{{ comment.user.profile.profile_pic.url }}" alt="user"
+                                     class="rounded-circle mx-3 my-3 w-75">
+                            </div>
+                            <div class="col-md-10 my-2">
+                                <div class="card-body p-2">
+                                    <strong class="fs-5">{{ comment.user }}</strong>
+                                    <small class="text-muted">{{ comment.timestamp|naturaltime }}</small>
+                                    <p class="card-text my-2">{{ comment.comment }}</p>
+                                    <!--Reply section-->
+                                    <div class="reply mx-0">
+                                        {% if user.is_authenticated %}
+                                            <button class="btn btn-sm btn-outline-primary" type="button"
+                                                data-bs-toggle="collapse" aria-controls="replyBox{{ comment.serial_no }}"
+                                                data-bs-target="#replyBox{{ comment.serial_no }}" aria-expanded="false">
+                                                Reply
+                                            </button>
+                                            <div class="collapse" id="replyBox{{ comment.serial_no }}">
+                                                <div class="card card-body my-2">
+                                                    <form action="{% url 'blog:post-comment' %}" method="post" class="mb-2">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="post_id" value="{{ object.id }}">
+                                                        <div class="form-group mb-3">
+                                                            <input type="text" class="form-control" name="comment"
+                                                                placeholder="reply here...">
+                                                            <input type="hidden" name="parent_serial_no"
+                                                                value="{{ comment.serial_no }}">
+                                                        </div>
+                                                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                            Post Reply</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#replyBox{{ comment.serial_no }}" aria-expanded="false"
+                                                aria-controls="replyBox{{ comment.serial_no }}" disabled>
+                                                Login To Reply
+                                            </button>
+                                        {% endif %}
+                                        <!--Showing Reply-->
+                                        {% for reply in reply_dict|get_val:comment.serial_no %}
+                                            <div class="card replies mt-2">
+                                                <div class="row g-0">
+                                                    <div class="col-md-2">
+                                                        <img src="{{ reply.user.profile.profile_pic.url }}" alt="user"
+                                                            class="rounded-circle mx-3 my-3 w-50">
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <div class="card-body p-2">
+                                                            <strong class="fs-5">{{ reply.user }}</strong>
+                                                            <small class="text-muted">{{reply.timestamp|naturaltime}}</small>
+                                                            <p class="card-text my-2">{{ reply.comment }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+{% block js %} {% endblock js %}

@@ -1,0 +1,26 @@
+{% extends 'blog/base.html' %}
+
+{% block css %} {% endblock css %}
+
+{% block body %}
+<div class="container my-4">
+    <div class="row g-4 mt-1 justify-content-center">
+        <div class="col-md-10">
+            <div class="border rounded shadow-sm bg-light p-4 mb-4">
+                <form method="post"> {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Delete Post</legend>
+                        <h2>Are you sure you want to delete the post "{{ object.title }}" ?</h2>
+                    </fieldset>
+                    <div class="form-group">
+                        <button class="btn btn-danger mt-4 me-2" type="submit">Yes, Delete</button>
+                        <a class="btn btn-secondary mt-4" href="{% url 'blog:post-detail' object.slug %}">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+{% block js %} {% endblock js %}

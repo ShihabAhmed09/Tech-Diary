@@ -1,0 +1,67 @@
+{% extends 'blog/main_content.html' %}
+
+{% block css %} {% endblock css %}
+
+{% block search %}
+<form method="get" action="{% url 'blog:user-posts' username %}" class="d-flex">
+    <input class="form-control" id="query" name="q" type="search" value="{{ request.GET.q }}"
+           placeholder="Search {{ username }}'s posts by title etc.." aria-label="Search">
+    <button class="btn btn-outline-success">Search</button>
+</form>
+{% endblock search %}
+
+{% block category %}
+<div class="card">
+    <div class="card-header">
+        <a href="{% url 'blog:user-posts' username %}" class="text-decoration-none text-dark">All Posts</a>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for category in categories %}
+        <li class="list-group-item ">
+            <a href="{% url 'blog:user-posts' username %}?q={{ category.name }}"
+               class="text-decoration-none text-dark">{{ category.name }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock category %}
+
+{% block content %}
+<div class="post-container">
+    {% for object in object_list %}
+    <div class="card mb-3 box" style="margin:auto;">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card-body">
+                    <div class="border-bottom">
+                        <strong class="d-inline-block mb-1 me-2 text-primary">
+                            <a href="{% url 'blog:user-posts' object.author.username %}" class="text-decoration-none">
+                            {{ object.author }}</a>
+                        </strong>
+                        <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
+                    </div>
+                    <h3 class="my-3">
+                        <a href="{% url 'blog:post-detail' object.slug %}" class="text-decoration-none text-dark">
+                            {{ object.title }}</a>
+                    </h3>
+                    <p class="article-content">{{ object.sub_heading|truncatechars:300 }}</p>
+                </div>
+            </div>
+
+            <div class="col-md-4 img-box">
+                <img src="{{ object.thumbnail.url }}" class="card-img" alt="..." height="200px">
+            </div>
+        </div>
+    </div>
+    {% empty %}
+        <h2 class="text-dark">No posts found of this user.</h2>
+    {% endfor %}
+</div>
+
+<!--Pagination-->
+{% include 'blog/pagination.html' %}
+
+{% endblock content %}
+
+{% block js %} {% endblock js %}

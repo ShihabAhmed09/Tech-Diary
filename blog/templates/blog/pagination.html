@@ -1,0 +1,26 @@
+{% if is_paginated %}
+    {% if page_obj.has_previous %}  <!--For previous pages-->
+        <a class="btn btn-outline-info mb-4" href="?page=1{% if category %}&q={{ category }}{% endif %}">First</a>
+        <a class="btn btn-outline-info mb-4"
+           href="?page={{ page_obj.previous_page_number }}{% if category %}&q={{ category }}{% endif %}">Previous
+        </a>
+    {% endif %}
+    <!--page_range: Loop over all pages in paginator, paginator: get current page paginator object-->
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}  <!--current page-->
+            <a class="btn btn-info mb-4" href="?page={{ num }}{% if category %}&q={{ category }}{% endif %}">
+                {{ num }}
+            </a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <!--previous and next 2 pages of current page-->
+            <a class="btn btn-outline-info mb-4" href="?page={{ num }}{% if category %}&q={{ category }}{% endif %}">
+                {{ num }}
+            </a>
+        {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}  <!--For Next pages-->
+        <a class="btn btn-outline-info mb-4"
+           href="?page={{ page_obj.next_page_number }}{% if category %}&q={{ category }}{% endif %}">Next</a>
+        <a class="btn btn-outline-info mb-4"
+           href="?page={{ page_obj.paginator.num_pages }}{% if category %}&q={{ category }}{% endif %}">Last</a>
+    {% endif %}
+{% endif %}

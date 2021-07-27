@@ -1,0 +1,45 @@
+{% extends 'blog/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block css %} {% endblock css %}
+
+{% block body %}
+<div class="container">
+    <div class="row g-5 mt-1 justify-content-center">
+        <div class="col-md-8">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="border rounded shadow-sm bg-light p-4 mb-4">
+                <form method="post"> {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Log In</legend>
+                        {{ form|crispy }}
+                    </fieldset>
+                    <div class="form-group">
+                        <button class="btn btn-outline-primary mb-4" type="submit">Login</button>
+                        <small class="text-muted ms-2">
+                            <a class="text-decoration-none" href="{% url 'password_reset' %}">Forgot Password?</a>
+                        </small>
+                    </div>
+                </form>
+                <div class="border-top">
+                    <div class="mt-4 mb-4">
+                        <small class="text-muted">
+                            Need an account?
+                            <a class="ms-2 text-decoration-none" href="{% url 'register' %}">Sign Up Now</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+{% block js %} {% endblock js %}
