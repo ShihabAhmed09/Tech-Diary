@@ -1,5 +1,4 @@
 # Tech-Diary
-<hr>
 
 Simple blog using Django Backend with authentication system.
 
